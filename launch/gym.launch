@@ -1,0 +1,10 @@
+<launch>
+
+    <!-- Load the environment parameters -->
+    <rosparam command="load" file="$(find gym_training)/config/env_params.yaml" />
+
+    <!-- You can add as many parameter files as you need -->
+
+    <!-- Launch the training system -->
+    <node pkg="gym_training" name="gym_train" type="start_training.py" output="screen"/> 
+</launch>
