@@ -1,3 +1,11 @@
 # Environment Parameters
 nepisodes: 5
 nsteps: 100
+
+# Initial state
+x: 0
+y: 0
+z: 3
+roll: 0
+yaw: 0
+pitch: 0
