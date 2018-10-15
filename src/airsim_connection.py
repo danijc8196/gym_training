@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 import rospy
-import AirSimClient
+import AirSimClient as airsim
 #from std_srvs.srv import Empty
 
 class AirSimConnection():
     
     def __init__(self):
         # connect to the AirSim simulator
-		_client = airsim.MultirotorClient()
-		_client.confirmConnection()
-		_client.enableApiControl(True)
+		self._client = airsim.MultirotorClient()
+		self._client.confirmConnection()
+		self._client.enableApiControl(True)
             
     def resetSim(self):
-        _client.reset()
+        self._client.reset()

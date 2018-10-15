@@ -1,23 +1,35 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, roslaunch
 import gym
 import time
 import environment
-import algorithm
+#import algorithm
+
 
 if __name__ == '__main__':
 
 	rospy.init_node('quadcopter_gym', anonymous=True)
 
-	# Create the GYM environment
-	env = gym.make('QuadcopterAirSim-v0')
-
+	
 	# Load parameters from the config files
-	nepisodes = rospy.get_param("/nepisodes")
-    nsteps = rospy.get_param("/nsteps")
+	try:
+		nepisodes = rospy.get_param("nepisodes")
+		nsteps = rospy.get_param("nsteps")
+		print("nepisodes: " + str(nepisodes) + ", nsteps: " + str(nsteps))
+	except:
+		print("Error loading parameters")
+		exit(-1)
+	
+
+	# Create the GYM environment
+	#env = gym.make('QuadcopterAirSim-v0')
+	while True:
+		print("jajajajajajaja")
+		time.sleep(1)
 
 
+	'''
     # Start the main training loop
     for episode in range(nepisodes):
 
@@ -45,5 +57,5 @@ if __name__ == '__main__':
     			state = nextState
     		else:
     			break;
-
-    env.close()
+	'''
+	#env.close()

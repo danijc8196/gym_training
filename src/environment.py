@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+import rospy
+import roslaunch
 import agent
-import airsim_connection
+import airsim_connection as simulator
+import start_training as main
 import gym
 from gym.envs.registration import register
 
@@ -18,16 +21,19 @@ class QuadCopterEnv(gym.Env):
 		# Initialize ros topics needed for taking observations / send commands
 
 		# Stablish connection with sim
+		self.sim = simulator.AirSimConnection()
+		self.action_space = agent.ACTION_SPACE
+		main.launch_offboard()
 		
 
-	def _seed(self):
+	def seed(self):
 		"""
 		This function returns the first action to be performed
 		"""
-		# TODO
+		action = 0
 		return action
 
-	def _reset(self):
+	def reset(self):
 		"""
 		This functions returns the environment to the initial state
 		"""
@@ -40,9 +46,10 @@ class QuadCopterEnv(gym.Env):
 		# wait until OK
 		# offboard ON
 		# takeoff
+		initial_state = agent.State(0,0,0,0,0,0,100)
 		return initial_state
 
-	def _step(self, action):
+	def step(self, action):
 		"""
 		This functions performs the selected action. When it finishes, takes an observation 
 		of the state and calculates the reward. Finally, checks if the episode is over or not.
@@ -54,5 +61,8 @@ class QuadCopterEnv(gym.Env):
 		# TODO: compute the reward
 
 		# TODO: check number of steps and current one
-
+		print("action: " + str(action))
+		state = 0
+		reward = 0
+		done = False
 		return state, reward, done
