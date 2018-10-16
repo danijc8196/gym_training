@@ -75,16 +75,16 @@ if __name__ == '__main__':
                 # Call the SET_MODE service to enable offboard mode
                 set_mode_client = rospy.ServiceProxy('mavros/set_mode', SetMode)
                 response_setmode = set_mode_client.call(0, "OFFBOARD")
-                print("---- Response setmode")
-                print(response_setmode)
-                print("----")
-            
+                #print("---- Response setmode")
+                #print(response_setmode)
+                #print("----")
+
                 # Call the ARMING service to arm the quadrotor
                 arming_client = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
                 response_arming = arming_client.call(True)
-                print("---- Response arming")
-                print(response_arming)
-                print("----")
+                #print("---- Response arming")
+                #print(response_arming)
+                #print("----")
 
                 last_request = rospy.Time.now()
 

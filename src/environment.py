@@ -21,6 +21,9 @@ class QuadCopterEnv(gym.Env):
 	def __init__(self):
 		# Initialize ros topics needed for taking observations / send commands
 		offb_ctrl_pub = rospy.Publisher('offboard/control', Bool, queue_size=1)
+		pose_pub = rospy.Publisher('/offb/pose', PoseStamped, queue_size=10)
+        pub_twist_pub = rospy.Publisher('/offb/twist', Twist, queue_size=10)
+        command_pub = rospy.Publisher('/offb/command', String, queue_size=10)
 
 		# Stablish connection with sim and connect the offboard mode
 		self.sim = simulator.AirSimConnection()
