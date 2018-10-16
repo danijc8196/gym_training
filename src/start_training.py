@@ -23,10 +23,7 @@ if __name__ == '__main__':
 	
 
 	# Create the GYM environment
-	#env = gym.make('QuadcopterAirSim-v0')
-	while True:
-		print("jajajajajajaja")
-		time.sleep(1)
+	env = gym.make('QuadcopterAirSim-v0')
 
 
 	'''

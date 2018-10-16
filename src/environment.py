@@ -2,6 +2,7 @@
 
 import rospy
 import roslaunch
+from std_msgs.msg import Bool
 import agent
 import airsim_connection as simulator
 import start_training as main
@@ -19,11 +20,13 @@ class QuadCopterEnv(gym.Env):
 
 	def __init__(self):
 		# Initialize ros topics needed for taking observations / send commands
+		offb_ctrl_pub = rospy.Publisher('offboard/control', Bool, queue_size=1)
 
-		# Stablish connection with sim
+		# Stablish connection with sim and connect the offboard mode
 		self.sim = simulator.AirSimConnection()
+		offb_ctrl_pub.publish(Bool(True))
+		
 		self.action_space = agent.ACTION_SPACE
-		main.launch_offboard()
 		
 
 	def seed(self):
