@@ -11,6 +11,7 @@ from geometry_msgs.msg import Twist, Vector3
 def offb_mode_cb(flag):
     global offboard_mode
     offboard_mode = flag
+    print("OFFB: received offb_mode_cb " + str(flag))
 
 def state_cb(state):
     global current_state
@@ -40,6 +41,7 @@ if __name__ == '__main__':
         # wait until offboard mode is turned ON
         while not offboard_mode:
             time.sleep(1)
+            print("Waiting for offboard_mode true")
 
         # connect to services
         try:
@@ -73,12 +75,16 @@ if __name__ == '__main__':
                 # Call the SET_MODE service to enable offboard mode
                 set_mode_client = rospy.ServiceProxy('mavros/set_mode', SetMode)
                 response_setmode = set_mode_client.call(0, "OFFBOARD")
+                print("---- Response setmode")
                 print(response_setmode)
+                print("----")
             
                 # Call the ARMING service to arm the quadrotor
                 arming_client = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
                 response_arming = arming_client.call(True)
+                print("---- Response arming")
                 print(response_arming)
+                print("----")
 
                 last_request = rospy.Time.now()
 
@@ -93,7 +99,7 @@ if __name__ == '__main__':
                         response_arming = arming_client.call(True)
                         last_request = rospy.Time.now()
                     
-                    local_pos_pub.publish(desiredPose)
+                    local_pos_pub.publish(desired_pose)
                     rate.sleep()
 
             else:

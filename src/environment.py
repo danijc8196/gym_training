@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, time
 import roslaunch
 from std_msgs.msg import Bool
 import agent
@@ -9,7 +9,7 @@ import start_training as main
 import gym
 from gym.envs.registration import register
 
-#register the training environment in the gym as an available one
+# Register the training environment in the gym as an available one
 reg = register(
     id='QuadcopterAirSim-v0',
     entry_point='environment:QuadCopterEnv',
@@ -24,6 +24,7 @@ class QuadCopterEnv(gym.Env):
 
 		# Stablish connection with sim and connect the offboard mode
 		self.sim = simulator.AirSimConnection()
+		time.sleep(5)
 		offb_ctrl_pub.publish(Bool(True))
 		
 		self.action_space = agent.ACTION_SPACE

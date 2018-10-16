@@ -25,7 +25,8 @@ if __name__ == '__main__':
 	# Create the GYM environment
 	env = gym.make('QuadcopterAirSim-v0')
 
-
+	while True:
+		pass
 	'''
     # Start the main training loop
     for episode in range(nepisodes):
