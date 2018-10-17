@@ -4,7 +4,7 @@
     <rosparam command="load" file="$(find gym_training)/config/env_params.yaml" />
 
     <!-- Launch the OFFBOARD daemon -->
-    <node pkg="gym_training" name="offboard" type="offboard.py" output="screen" required="true"/> 
+    <node pkg="gym_training" name="offboard" type="offboard_node.py" output="screen" required="true"/> 
 
     <!-- Launch the training system -->
     <node pkg="gym_training" name="gym_main" type="start_training.py" output="screen" required="true"/>
