@@ -2,25 +2,30 @@
 
 from gym import spaces
 
+PI = 3.14159265359
 
 # Space of possible actions
 ACTION_SPACE = spaces.Discrete(3)
-"""
-0: Fordward
-1: Left
-2: Right
-"""
+ACTION_FORDWARD = 0
+ACTION_LEFT = 1
+ACTION_RIGHT = 2
+
+# Orientation dictionary
+orientation = {
+	'E':0,
+	'NE':PI/4,
+	'N':PI/2,
+	'NW':3*PI/4,
+	'W':PI,
+	'SW':5*PI/4,
+	'S':3*PI/2,
+	'SE':7*PI/4
+}
 
 class State:
-	
-	def __init__(self, x, y, z, roll, pitch, yaw, distance_objective):
-		# TODO: define state fields
-		self.x = x
-		self.y = y
-		self.z = z
-		self.roll = roll
-		self.pitch = pitch
-		self.yaw = yaw
-		self.distance_objective = distance_objective
 
+	def __init__(self, pose, orientation, distance_objective):
+		self.pose = pose
+		self.orientation = orientation
+		self.distance_objective = distance_objective
 
