@@ -1,8 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
+from pymavlink import mavutil
+from pymavlink.dialects.v20 import mypx4 as px4
 import rospy, time
 import roslaunch
 from std_msgs.msg import Bool
+from mavros_msgs.msg import State
 import agent
 import airsim_connection as simulator
 import start_training as main
@@ -29,31 +32,25 @@ class QuadCopterEnv(gym.Env):
 		self.offb_ctrl_pub = rospy.Publisher('offb/control', Bool, queue_size=1)
 		self.desired_pose_pub = rospy.Publisher('offb/pose', PoseStamped, queue_size=1)
 		self.current_pose_sub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self._current_pose_cb)
+		self.state_sub = rospy.Subscriber('mavros/state', State, self._state_cb)
 
 		# Initialize variables
 		self.current_pose = PoseStamped()
 		self.desired_pose = PoseStamped()
 		self.action_space = agent.ACTION_SPACE
 
-		# Stablish connection with sim, connect the offboard mode and takeoff to initial position
+		# Stablish connection with sim
 		self.sim = simulator.AirSimConnection()
-		time.sleep(3)
-		self._set_initial_position()
-		self.offb_ctrl_pub.publish(Bool(True))
-		time.sleep(3)
+		
+		time.sleep(5)
 
-		time.sleep(10)
-		self.offb_ctrl_pub.publish(False)
-
-		self.orientation = 'W'
-		self.state = agent.State(self.current_pose, self.orientation, 100)
 
 	# Public functions
 	def seed(self):
 		"""
 		This function returns the first action to be performed
 		"""
-		action = 0
+		action = agent.ACTION_FORDWARD
 		return action
 
 	def reset(self):
@@ -61,17 +58,44 @@ class QuadCopterEnv(gym.Env):
 		This functions returns the environment to the initial state
 		"""
 
-		# TODO:
-		# (land?) & disarm
-		# offboard OFF
-		# stop ekf2
-		# reset airsim
-		# start ekf2
-		# wait until OK
-		# offboard ON
-		# takeoff
-		#initial_state = agent.State(0,0,0,0,0,0,100)
-		return initial_state
+		# Turn offboard mode off, land and disarm
+		self.offb_ctrl_pub.publish(Bool(False))
+
+		while self.current_state.armed:
+			time.sleep(1)
+		
+		time.sleep(1)
+		# Send STOP command to the autopilot estimator
+		#ekf2_ctrl(2)
+		#time.sleep(1)
+
+		print "reset sim"
+
+		# Reset simulator
+		self.sim.resetSim()
+		print "wait for 10 s"
+		time.sleep(10)
+
+		print "send cmd 3"
+		# Send START command to the autopilot estimator
+		ekf2_ctrl(3)
+
+		print "sleep 20s"
+		# Wait for the ekf2 module to restart
+		time.sleep(20)
+		print "EKF2 SHOULD BE RESTARTED"
+
+		# Turn offboard mode on, arm and takeoff
+		self._set_initial_position()
+		self.offb_ctrl_pub.publish(Bool(True))
+		time.sleep(10)
+		
+		# Return current state
+		self.orientation = 'N'
+		self.state = agent.State(self.current_pose, self.orientation, 100)
+		
+		return self.state
+		
 
 	def step(self, action):
 		"""
@@ -97,9 +121,9 @@ class QuadCopterEnv(gym.Env):
 	def _set_initial_position(self):
 		self.desired_pose.pose.position.x = 0
 		self.desired_pose.pose.position.y = 0
-		self.desired_pose.pose.position.z = 10
-		self.desired_pose = self._modify_orientation(self.desired_pose, 'W')
-		self.desired_pose_pub.publish(desired_pose)
+		self.desired_pose.pose.position.z = 8
+		self.desired_pose = self._modify_orientation(self.desired_pose, 'N')
+		self.desired_pose_pub.publish(self.desired_pose)
 
 	def _perform_action(self, action):
 
@@ -206,8 +230,7 @@ class QuadCopterEnv(gym.Env):
 	def _check_if_done(self):
 		return False;
 
-	def _current_pose_cb(self, pose): # Current quadrotor pose
-		self.current_pose = pose
+	
 
 	def _modify_orientation(self, current_pose, new_orientation):
 		new_pose = current_pose
@@ -237,6 +260,20 @@ class QuadCopterEnv(gym.Env):
 				return False
 		else:
 			return False
+	
+	def _current_pose_cb(self, pose):
+		self.current_pose = pose
+
+	def _state_cb(self, state):
+		self.current_state = state
 
 	
+
+
+
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ #
+
+def ekf2_ctrl(cmd):
+	sender = mavutil.mavlink_connection(device='udpout:127.0.0.1:14556')
+	mav = px4.MAVLink(sender)
+	mav.estimator_control_msg_send(target_system=0, target_component=0, command=cmd, force_mavlink1=False)

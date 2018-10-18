@@ -12,8 +12,8 @@ PI = 3.14159265359
 
 def offb_mode_cb(flag):
     global offboard_mode
-    offboard_mode = flag
-    print("OFFB: received offb_mode_cb " + str(flag))
+    offboard_mode.data = flag.data
+    print("OFFB: received offb_mode_cb " + str(flag.data))
 
 def state_cb(state): # Connection state with autopilot
     global current_state
@@ -37,7 +37,7 @@ if __name__ == '__main__':
         current_state = State()
         current_pose = PoseStamped()
         desired_pose = PoseStamped()
-        offboard_mode = False
+        offboard_mode = Bool(False)
         
         # Time rate
         rate = rospy.Rate(20)
@@ -50,28 +50,17 @@ if __name__ == '__main__':
         current_pose_sub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, current_pose_cb)
         desired_pose_sub = rospy.Subscriber('offb/pose', PoseStamped, desired_pose_cb)
         
-        print "Pruebas antes del while true:  ----------------------------"
-        print("Offb en raw:")
-        print(offboard_mode)
-        print("Offb como str:")
-        print(str(offboard_mode))
-        print("Acceder a data dentro de offb:")
-        print(offboard_mode.data)
-        print "-----------------------------------------------------------"
+        # Connect to services
+        try:
+            rospy.wait_for_service('mavros/set_mode', 10)
+            rospy.wait_for_service('mavros/cmd/arming', 10)
+            print("Services connected")
+        except rospy.ROSException:
+            print("Failed to connect to services")
 
         while True:
-            print "- While True"
-            if offboard_mode == True:
-                print "- - IF"
+            if offboard_mode.data:
 
-                # Connect to services
-                try:
-                    rospy.wait_for_service('mavros/set_mode', 10)
-                    rospy.wait_for_service('mavros/cmd/arming', 10)
-                    print("Services connected")
-                except rospy.ROSException:
-                    print("Failed to connect to services")
-                
                 # Start setting OFFBOARD mode on autopilot
                 while not current_state.connected:
                     rate.sleep()
@@ -97,9 +86,7 @@ if __name__ == '__main__':
                 # Keeping OFFBOARD mode alive ---------------------------------------------------------------\\\
                 last_request = rospy.Time.now()
 
-                while not rospy.is_shutdown():
-
-                    print "- - - While offb connected"
+                while not rospy.is_shutdown() and offboard_mode.data:
 
                     time_exceeded = rospy.get_rostime() - last_request > rospy.Duration(5)
                     if current_state.mode != "OFFBOARD" and time_exceeded:
@@ -113,21 +100,15 @@ if __name__ == '__main__':
 
                     # Send pose
                     pose_pub.publish(desired_pose)
-                
-                    rate.sleep()
-
-                    print(offboard_mode)
-                    if offboard_mode == True:
-                        print "- - - El offb es true"
-                    else:
-                        print "- - - El offb es false"
-                        break
+                    rate.sleep()   
 
                 # Keeping OFFBOARD mode alive ---------------------------------------------------------------///
-                print("- - Hemos salido del bucle")
+            
             else:
-                print "- - ELSE"
                 time.sleep(1)
+                if current_state.armed and current_pose.pose.position.z <= 0:
+                    arming_client = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
+                    arming_client.call(False)
 
     except Exception as e:
         print("Exception on Offboard_node")

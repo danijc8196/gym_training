@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import rospy, roslaunch
 import gym
 import time
 import environment
+import agent
 #import algorithm
 
 
@@ -25,6 +26,46 @@ if __name__ == '__main__':
 	# Create the GYM environment
 	env = gym.make('QuadcopterAirSim-v0')
 
+	time.sleep(5)
+
+	state = env.reset()
+
+	"""
+	print "reset"
+	env.reset()
+
+	print "Step left 1"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 2"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 3"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 4"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 5"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 6"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 7"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+
+	print "Step left 8"
+	env.step(agent.ACTION_LEFT)
+	time.sleep(5)
+	"""
 
 	while True:
 		pass
