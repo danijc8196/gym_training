@@ -50,11 +50,19 @@ if __name__ == '__main__':
         current_pose_sub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, current_pose_cb)
         desired_pose_sub = rospy.Subscriber('offb/pose', PoseStamped, desired_pose_cb)
         
+        print "Pruebas antes del while true:  ----------------------------"
+        print("Offb en raw:")
+        print(offboard_mode)
+        print("Offb como str:")
+        print(str(offboard_mode))
+        print("Acceder a data dentro de offb:")
+        print(offboard_mode.data)
+        print "-----------------------------------------------------------"
 
         while True:
-            print("while true")
+            print "- While True"
             if offboard_mode == True:
-                print("Estamos en el IF")
+                print "- - IF"
 
                 # Connect to services
                 try:
@@ -76,13 +84,13 @@ if __name__ == '__main__':
                 response_setmode = set_mode_client.call(0, "OFFBOARD")
                 print("Response mode ------")
                 print(response_setmode)
-                print("------")
+                print("--------------------")
             
                 arming_client = rospy.ServiceProxy('mavros/cmd/arming', CommandBool)
                 response_arming = arming_client.call(True)
                 print("Response arm ------")
                 print(response_arming)
-                print("------")
+                print("--------------------")
 
                 print("-- OFFBOARD MODE TURNED ON --")
 
@@ -91,12 +99,14 @@ if __name__ == '__main__':
 
                 while not rospy.is_shutdown():
 
+                    print "- - - While offb connected"
+
                     time_exceeded = rospy.get_rostime() - last_request > rospy.Duration(5)
                     if current_state.mode != "OFFBOARD" and time_exceeded:
                         set_mode_client.call(0, "OFFBOARD")
                         last_request = rospy.Time.now()
 
-                    elif not current_state.armed and time_Exceeded:
+                    elif not current_state.armed and time_exceeded:
                         arming_client.call(True)
                         last_request = rospy.Time.now()
 
@@ -105,17 +115,18 @@ if __name__ == '__main__':
                     pose_pub.publish(desired_pose)
                 
                     rate.sleep()
+
                     print(offboard_mode)
                     if offboard_mode == True:
-                        print "El offb es true"
+                        print "- - - El offb es true"
                     else:
-                        print "El offb se ha puesto a false"
+                        print "- - - El offb es false"
                         break
 
                 # Keeping OFFBOARD mode alive ---------------------------------------------------------------///
-                print("Hemos salido del bucle")
+                print("- - Hemos salido del bucle")
             else:
-                print("Estamos en el ELSE")
+                print "- - ELSE"
                 time.sleep(1)
 
     except Exception as e:
