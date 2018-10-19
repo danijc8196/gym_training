@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import rospy
 import AirSimClient as airsim
-#from std_srvs.srv import Empty
 
 class AirSimConnection():
     

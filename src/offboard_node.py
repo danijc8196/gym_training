@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import rospy, time
-from tf.transformations import quaternion_from_euler, quaternion_multiply
 from std_msgs.msg import String, Bool
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool
+from tf.transformations import quaternion_from_euler, quaternion_multiply
 
 PI = 3.14159265359
 

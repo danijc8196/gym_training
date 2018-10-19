@@ -2,18 +2,16 @@
 
 from pymavlink import mavutil
 from pymavlink.dialects.v20 import mypx4 as px4
-import rospy, time
-import roslaunch
-from std_msgs.msg import Bool
-from mavros_msgs.msg import State
+import rospy, roslaunch, time, math
 import agent
 import airsim_connection as simulator
 import start_training as main
 import gym
 from gym.envs.registration import register
+from std_msgs.msg import Bool
+from mavros_msgs.msg import State
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import quaternion_from_euler, quaternion_multiply
-import math
 
 PI = 3.14159265359
 

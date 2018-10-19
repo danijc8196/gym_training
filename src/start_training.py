@@ -1,12 +1,7 @@
 #!/usr/bin/env python2
 
-import rospy, roslaunch
-import gym
-import time
-import environment
-import agent
-#import algorithm
-
+import rospy, roslaunch, time
+import gym, environment, agent, algorithm
 
 if __name__ == '__main__':
 
