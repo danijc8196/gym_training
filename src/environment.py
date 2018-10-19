@@ -13,6 +13,7 @@ import gym
 from gym.envs.registration import register
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import quaternion_from_euler, quaternion_multiply
+import math
 
 PI = 3.14159265359
 
@@ -96,7 +97,6 @@ class QuadCopterEnv(gym.Env):
 		
 		return self.state
 		
-
 	def step(self, action):
 		"""
 		This functions performs the selected action. When it finishes, takes an observation 
@@ -132,37 +132,51 @@ class QuadCopterEnv(gym.Env):
 		else:
 			if action == agent.ACTION_FORDWARD:
 				'''
-				Conocer primero el sistema de referencia que utiliza el airsim
-				Hacia donde son las X y las Y positivas? En funcion de eso, hacer los calculos en funcion de la orientacion
+				Reference system AirSim:
+				N: +y , E: +x
 				'''
-				# TODO
 				
 				x0 = self.current_pose.pose.position.x
 				y0 = self.current_pose.pose.position.y
 
-				# Remove this assignation and complete the if-else
-				x1 = x0 
-				y1 = y0
+				A = 3
 
 				if self.state.orientation == 'E':
-					pass
+					x1 = x0 + A
+					y1 = y0
+					
 				elif self.state.orientation == 'NE':
-					pass
+					x1 = x0 + A*math.cos(PI/4)
+					y1 = y0 + A*math.sin(PI/4)
+
 				elif self.state.orientation == 'N':
-					pass
+					x1 = x0
+					y1 = y0 + A
+					
 				elif self.state.orientation == 'NW':
-					pass
+					x1 = x0 - A*math.cos(PI/4)
+					y1 = y0 + A*math.sin(PI/4)
+					
 				elif self.state.orientation == 'W':
-					pass
+					x1 = x0 - A
+					y1 = y0
+					
 				elif self.state.orientation == 'SW':
-					pass
+					x1 = x0 - A*math.cos(PI/4)
+					y1 = y0 - A*math.sin(PI/4)
+					
 				elif self.state.orientation == 'S':
-					pass
+					x1 = x0
+					y1 = y0 - A
+					
 				elif self.state.orientation == 'SE':
-					pass
+					x1 = x0 + A*math.cos(PI/4)
+					y1 = y0 - A*math.sin(PI/4)
+					
 				else:
 					pass
 				
+				self.desired_pose = self.current_pose
 				self.desired_pose.pose.position.x = x1
 				self.desired_pose.pose.position.y = y1
 
@@ -230,8 +244,6 @@ class QuadCopterEnv(gym.Env):
 	def _check_if_done(self):
 		return False;
 
-	
-
 	def _modify_orientation(self, current_pose, new_orientation):
 		new_pose = current_pose
 		q_orig = quaternion_from_euler(0, 0, 0)
@@ -266,10 +278,6 @@ class QuadCopterEnv(gym.Env):
 
 	def _state_cb(self, state):
 		self.current_state = state
-
-	
-
-
 
 # ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ #
 
