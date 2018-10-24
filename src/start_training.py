@@ -1,7 +1,12 @@
 #!/usr/bin/env python2
 
-import rospy, roslaunch, time
-import gym, environment, agent, algorithm
+import rospy, roslaunch
+import gym
+import time
+import environment
+import agent
+#import algorithm
+
 
 if __name__ == '__main__':
 
@@ -21,18 +26,44 @@ if __name__ == '__main__':
 	# Create the GYM environment
 	env = gym.make('QuadcopterAirSim-v0')
 
-	time.sleep(5)
+	#state = env.reset()
 
+	
+	print "reset"
 	state = env.reset()
 
+	print "Step left"
+	observation, reward, done, info = env.step(agent.ACTION_LEFT)
+
+	print "Step fordward"
+	observation, reward, done, info = env.step(agent.ACTION_FORDWARD)
+
+	print "Step right"
+	observation, reward, done, info = env.step(agent.ACTION_RIGHT)
+
+	print "Step right"
+	observation, reward, done, info = env.step(agent.ACTION_RIGHT)
+
+	print "Step fordward"
+	observation, reward, done, info = env.step(agent.ACTION_FORDWARD)
+
+	print "Step right"
+	observation, reward, done, info = env.step(agent.ACTION_RIGHT)
+
+	print "Step right"
+	observation, reward, done, info = env.step(agent.ACTION_RIGHT)
+
+	print "Step fordward"
+	observation, reward, done, info = env.step(agent.ACTION_FORDWARD)
+
+	print "Step left"
+	observation, reward, done, info = env.step(agent.ACTION_LEFT)
+
+	print "Step fordward"
+	observation, reward, done, info = env.step(agent.ACTION_FORDWARD)
+
+	
 	"""
-	print "reset"
-	env.reset()
-
-	print "Step left 1"
-	env.step(agent.ACTION_LEFT)
-	time.sleep(5)
-
 	print "Step left 2"
 	env.step(agent.ACTION_LEFT)
 	time.sleep(5)

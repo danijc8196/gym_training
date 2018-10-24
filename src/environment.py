@@ -43,8 +43,38 @@ class QuadCopterEnv(gym.Env):
 		
 		time.sleep(5)
 
+		'''#######
+		print "Takeoff 1"
+		self._set_initial_position()
+		self.offb_ctrl_pub.publish(Bool(True))
+		print "Waiting 10 s for takeoff"
+		time.sleep(10)
+		print "Offb off. Waiting for landing and disarming"
+		self.offb_ctrl_pub.publish(Bool(False))
+		while self.current_state.armed:
+			time.sleep(1)
+		print "Disarmed"
+		time.sleep(3)
+		print "Reset! Good luck :("
+		self.sim.resetSim()
+		print "Wait 5 s after reset"
+		time.sleep(5)
+		print "Sending reboot"
+		ekf2_ctrl(3)
+		print "Waiting 15 s for estimator"
+		time.sleep(15)
+		print "Trying to takeoff 2"
+		self._set_initial_position()
+		self.offb_ctrl_pub.publish(Bool(True))
+		print "Waiting 10 s for takeoff"
+		time.sleep(10)
+		print "Offboard off"
+		self.offb_ctrl_pub.publish(Bool(False))
+		print "End"
+		'''#######
 
-	# Public functions
+
+	# Public functions _______________________________________________________________________
 	def seed(self):
 		"""
 		This function returns the first action to be performed
@@ -59,30 +89,23 @@ class QuadCopterEnv(gym.Env):
 
 		# Turn offboard mode off, land and disarm
 		self.offb_ctrl_pub.publish(Bool(False))
-
 		while self.current_state.armed:
 			time.sleep(1)
-		
 		time.sleep(1)
-		# Send STOP command to the autopilot estimator
-		#ekf2_ctrl(2)
-		#time.sleep(1)
 
-		print "reset sim"
+		# Send STOP command to the autopilot estimator
+		ekf2_ctrl(2)
+		time.sleep(1)
 
 		# Reset simulator
 		self.sim.resetSim()
-		print "wait for 10 s"
-		time.sleep(10)
+		time.sleep(5)
 
-		print "send cmd 3"
 		# Send START command to the autopilot estimator
-		ekf2_ctrl(3)
+		ekf2_ctrl(1)
 
-		print "sleep 20s"
 		# Wait for the ekf2 module to restart
-		time.sleep(20)
-		print "EKF2 SHOULD BE RESTARTED"
+		time.sleep(15)
 
 		# Turn offboard mode on, arm and takeoff
 		self._set_initial_position()
@@ -102,20 +125,21 @@ class QuadCopterEnv(gym.Env):
 		"""
 		# Perform action
 		self._perform_action(action)
-		time.sleep(5)
+		while not self._is_position_reached(self.current_pose, self.desired_pose):
+			time.sleep(0.5)
 
 		# Take an observation
-		self._take_observation()
+		observation = self._take_observation()
 
-		# Compute the reward
-		reward = self._compute_reward()
+		# Compute the reward and update the state
+		reward = self._compute_reward(observation)
 
-		# Check if episode is over (done)
+		# Check if episode is over (done or not)
 		done = self._check_if_done()
 
-		return self.state, reward, done
+		return self.state, reward, done, {}
 
-	# Private functions (helpers)
+	# Private functions (helpers) _______________________________________________________________________
 	def _set_initial_position(self):
 		self.desired_pose.pose.position.x = 0
 		self.desired_pose.pose.position.y = 0
@@ -232,11 +256,13 @@ class QuadCopterEnv(gym.Env):
 			self.desired_pose_pub.publish(self.desired_pose)
 
 	def _take_observation(self):
-		self.state.pose = self.current_pose
-		self.state.orientation = self.orientation
-		self.state.distance_objective = 100
+		observation = agent.State(self.current_pose, self.orientation, 100)
+		return observation
 
-	def _compute_reward(self):
+	def _compute_reward(self, observation):
+		# We have old state (self.state) and current state (observation). Compute reward
+		# Then, update the state
+		self.state = observation
 		return 0
 
 	def _check_if_done(self):
@@ -255,8 +281,8 @@ class QuadCopterEnv(gym.Env):
 
 	def _is_position_reached(self, current_pose, desired_pose):
 		error = 0.1
-		if current_pose.pose.x < desired_pose.pose.position.x + error:
-			if current_pose.pose.x > desired_pose.pose.position.x - error:
+		if current_pose.pose.position.x < desired_pose.pose.position.x + error:
+			if current_pose.pose.position.x > desired_pose.pose.position.x - error:
 				print "x is OK"
 				if current_pose.pose.position.y < desired_pose.pose.position.y + error:
 					if current_pose.pose.position.y > desired_pose.pose.position.y - error:
