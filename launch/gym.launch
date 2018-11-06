@@ -6,7 +6,7 @@
     <!-- Launch the OFFBOARD node -->
     <node pkg="gym_training" name="offboard_node" type="offboard_node.py" output="screen" required="true"/> 
 
-    <!-- Launch the training system -->
+    <!-- Launch the TRAINING node -->
     <node pkg="gym_training" name="training_node" type="training_node.py" output="screen" required="true"/>
     
 </launch>
