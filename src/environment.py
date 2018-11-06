@@ -5,7 +5,7 @@ from pymavlink.dialects.v20 import mypx4 as px4
 import rospy, roslaunch, time, math
 import agent
 import airsim_connection as simulator
-import start_training as main
+import training_node as main
 import gym
 from gym.envs.registration import register
 from std_msgs.msg import Bool
@@ -17,7 +17,7 @@ PI = 3.14159265359
 
 # Register the training environment in the gym as an available one
 reg = register(
-    id='QuadcopterAirSim-v0',
+    id='QuadcopterAirSim-v1',
     entry_point='environment:QuadCopterEnv',
     timestep_limit=100,
     )
@@ -40,42 +40,11 @@ class QuadCopterEnv(gym.Env):
 
 		# Stablish connection with sim
 		self.sim = simulator.AirSimConnection()
-		
 		time.sleep(5)
-
-		'''#######
-		print "Takeoff 1"
-		self._set_initial_position()
-		self.offb_ctrl_pub.publish(Bool(True))
-		print "Waiting 10 s for takeoff"
-		time.sleep(10)
-		print "Offb off. Waiting for landing and disarming"
-		self.offb_ctrl_pub.publish(Bool(False))
-		while self.current_state.armed:
-			time.sleep(1)
-		print "Disarmed"
-		time.sleep(3)
-		print "Reset! Good luck :("
-		self.sim.resetSim()
-		print "Wait 5 s after reset"
-		time.sleep(5)
-		print "Sending reboot"
-		ekf2_ctrl(3)
-		print "Waiting 15 s for estimator"
-		time.sleep(15)
-		print "Trying to takeoff 2"
-		self._set_initial_position()
-		self.offb_ctrl_pub.publish(Bool(True))
-		print "Waiting 10 s for takeoff"
-		time.sleep(10)
-		print "Offboard off"
-		self.offb_ctrl_pub.publish(Bool(False))
-		print "End"
-		'''#######
 
 
 	# Public functions _______________________________________________________________________
-	def seed(self):
+	def seed(self, seed=None):
 		"""
 		This function returns the first action to be performed
 		"""
@@ -139,7 +108,7 @@ class QuadCopterEnv(gym.Env):
 
 		return self.state, reward, done, {}
 
-	# Private functions (helpers) _______________________________________________________________________
+	# Private functions (helpers) ____________________________________________________________
 	def _set_initial_position(self):
 		self.desired_pose.pose.position.x = 0
 		self.desired_pose.pose.position.y = 0

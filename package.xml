@@ -2,7 +2,7 @@
 <package>
   <name>gym_training</name>
   <version>1.0.0</version>
-  <description>The gym_training package</description>
+  <description>The gym_training package containing an offboard node and a training node</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
